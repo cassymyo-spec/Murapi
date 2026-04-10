@@ -11,7 +11,7 @@ export default function RecordsScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#fffdf6" />
       <View style={styles.content}>
-        <Text style={styles.icon}>📋</Text>
+        <Text style={styles.icon}></Text>
         <Text style={styles.title}>Encounter Records</Text>
         <Text style={styles.sub}>
           Every patient visit you record will appear here.

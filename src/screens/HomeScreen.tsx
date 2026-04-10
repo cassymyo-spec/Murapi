@@ -94,7 +94,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity style={styles.actionCard} activeOpacity={0.8}>
           <View style={styles.actionLeft}>
-            <Text style={styles.actionIcon}>📋</Text>
+            <Text style={styles.actionIcon}></Text>
             <View>
               <Text style={styles.actionTitle}>
                 Record encounter
@@ -109,7 +109,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity style={styles.actionCard} activeOpacity={0.8}>
           <View style={styles.actionLeft}>
-            <Text style={styles.actionIcon}>📚</Text>
+            <Text style={styles.actionIcon}></Text>
             <View>
               <Text style={styles.actionTitle}>
                 Refresher training

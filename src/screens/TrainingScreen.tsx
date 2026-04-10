@@ -11,7 +11,7 @@ export default function TrainingScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#fffdf6" />
       <View style={styles.content}>
-        <Text style={styles.icon}>📚</Text>
+        <Text style={styles.icon}></Text>
         <Text style={styles.title}>Refresher Training</Text>
         <Text style={styles.sub}>
           Ask Murapi any clinical question. IMCI protocols,
