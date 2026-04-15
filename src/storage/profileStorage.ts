@@ -50,7 +50,26 @@ export const getProfile = async (): Promise<Partial<VHWProfile> | null> => {
 export const isSetupComplete = async (): Promise<boolean> => {
   try {
     const profile = await getProfile();
-    return profile?.setupComplete === true;
+    if (profile?.setupComplete !== true) {
+      return false;
+    }
+
+    const requiredFields: Array<keyof VHWProfile> = [
+      'language',
+      'name',
+      'phone',
+      'district',
+      'province',
+      'healthCentre',
+      'supervisorName',
+      'experience',
+      'createdAt',
+    ];
+
+    return requiredFields.every((field) => {
+      const value = profile[field];
+      return typeof value === 'string' && value.trim().length > 0;
+    });
   } catch (error) {
     return false;
   }

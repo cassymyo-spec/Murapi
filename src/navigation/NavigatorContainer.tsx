@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { isSetupComplete } from '../storage/profileStorage';
 
 // Onboarding screens
 import WelcomeScreen from '../screens/Onboarding/WelcomeScreen';
@@ -15,23 +18,45 @@ import ClinicalScreen from '../screens/ClinicalScreen';
 import RecordsScreen from '../screens/RecordsScreen';
 import TrainingScreen from '../screens/TrainingScreen';
 
+import ClinicalPatientScreen from '../screens/ClinicalPatientScreen';
+import ClinicalSessionScreen from '../screens/ClinicalSessionScreen';
+
 export type RootStackParamList = {
   Welcome: undefined;
   LanguageSelect: undefined;
   ProfileSetup: undefined;
   WorkDetails: undefined;
   MainTabs: undefined;
+  ClinicalPatient: undefined;
+  ClinicalSession: {
+    ageGroup: string;
+    sex: string;
+    complaint: string;
+  };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
-// Tab navigator — shown after onboarding
+const tabIcons = {
+  Home: 'home-outline',
+  Clinical: 'stethoscope',
+  Records: 'clipboard-text-outline',
+  Training: 'school-outline',
+} as const;
+
 function MainTabs() {
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({ route }) => ({
         headerShown: false,
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons
+            name={tabIcons[route.name as keyof typeof tabIcons]}
+            color={color}
+            size={size + 2}
+          />
+        ),
         tabBarStyle: {
           backgroundColor: '#ffffff',
           borderTopColor: '#e8e8e8',
@@ -47,7 +72,7 @@ function MainTabs() {
           fontFamily: 'System',
           fontWeight: '600',
         },
-      }}
+      })}
     >
       <Tab.Screen
         name="Home"
@@ -73,12 +98,47 @@ function MainTabs() {
   );
 }
 
-// Root stack — onboarding first, then tabs
 export default function AppNavigator() {
+  const [initialRouteName, setInitialRouteName] =
+    useState<keyof RootStackParamList | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadInitialRoute = async () => {
+      const setupComplete = await isSetupComplete();
+
+      if (isMounted) {
+        setInitialRouteName(setupComplete ? 'MainTabs' : 'Welcome');
+      }
+    };
+
+    loadInitialRoute();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (initialRouteName === null) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#fffdf6',
+        }}
+      >
+        <ActivityIndicator color="#2d6a4f" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Welcome"
+        initialRouteName={initialRouteName}
         screenOptions={{
           headerShown: false,
           animation: 'slide_from_right',
@@ -90,6 +150,8 @@ export default function AppNavigator() {
         <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
         <Stack.Screen name="WorkDetails" component={WorkDetailsScreen} />
         <Stack.Screen name="MainTabs" component={MainTabs} />
+        <Stack.Screen name="ClinicalPatient" component={ClinicalPatientScreen} />
+        <Stack.Screen name="ClinicalSession" component={ClinicalSessionScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

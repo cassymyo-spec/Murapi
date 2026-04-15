@@ -8,14 +8,29 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { getProfile, VHWProfile } from '../storage/profileStorage';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/NavigatorContainer';
+import { getTodayCount, getTotalPatients } from '../storage/patientRepository';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 export default function HomeScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [profile, setProfile] = useState<Partial<VHWProfile> | null>(null);
-  const [todayCount] = useState(0);
+  const [todayCount, setTodayCount] = useState(0);
+  const [totalPatients, setTotalPatients] = useState(0)
 
   useEffect(() => {
     loadProfile();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      setTodayCount(getTodayCount());
+      setTotalPatients(getTotalPatients());
+    }, [])
+  );
 
   const loadProfile = async () => {
     const saved = await getProfile();
@@ -26,7 +41,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fffdf6" />
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
       <View style={styles.header}>
         <View>
@@ -49,6 +64,9 @@ export default function HomeScreen() {
           <Text style={styles.summaryCount}>{todayCount}</Text>
           <Text style={styles.summaryDate}>
             {new Date().toDateString()}
+          </Text>
+          <Text style={styles.summaryTotal}>
+            {totalPatients} total patients on record
           </Text>
         </View>
 
@@ -77,7 +95,11 @@ export default function HomeScreen() {
 
         <Text style={styles.sectionTitle}>Quick actions</Text>
 
-        <TouchableOpacity style={styles.actionCard} activeOpacity={0.8}>
+        <TouchableOpacity 
+          style={styles.actionCard} 
+          onPress={() => navigation.navigate('ClinicalPatient')}
+          activeOpacity={0.8}
+        >
           <View style={styles.actionLeft}>
             <Text style={styles.actionIcon}>🩺</Text>
             <View>
@@ -277,5 +299,11 @@ const styles = StyleSheet.create({
   actionArrow: {
     fontSize: 16,
     color: '#cccccc',
-  }
+  },
+  summaryTotal: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.4)',
+    fontFamily: 'System',
+    marginTop: 2,
+  },
 });

@@ -1,28 +1,137 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
+  FlatList,
+  TouchableOpacity,
   StatusBar,
+  TextInput,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import {
+  getAllEncounters,
+  EncounterRow,
+} from '../storage/patientRepository';
 
 export default function RecordsScreen() {
+  const [encounters, setEncounters] = useState<EncounterRow[]>([]);
+  const [search, setSearch] = useState('');
+
+  // Reload every time tab is focused
+  useFocusEffect(
+    useCallback(() => {
+      loadEncounters();
+    }, [])
+  );
+
+  const loadEncounters = () => {
+    const data = getAllEncounters();
+    setEncounters(data);
+  };
+
+  const filtered = encounters.filter((e) =>
+    search.length === 0 ||
+    e.patient_code.toLowerCase().includes(search.toLowerCase()) ||
+    (e.patient_name ?? '').toLowerCase().includes(search.toLowerCase()) ||
+    e.complaint.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const formatDate = (iso: string): string => {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
+  const formatComplaint = (c: string): string =>
+    c.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+
+  const renderEncounter = ({ item }: { item: EncounterRow }) => (
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.7}
+    >
+      {/* Top row */}
+      <View style={styles.cardTop}>
+        <View style={styles.codeWrap}>
+          <Text style={styles.code}>{item.patient_code}</Text>
+        </View>
+        {item.was_referred === 1 && (
+          <View style={styles.referredBadge}>
+            <Text style={styles.referredText}>Referred</Text>
+          </View>
+        )}
+        <Text style={styles.date}>
+          {formatDate(item.created_at)}
+        </Text>
+      </View>
+
+      {/* Complaint */}
+      <Text style={styles.complaint}>
+        {formatComplaint(item.complaint)}
+      </Text>
+
+      {/* Patient name if available */}
+      {item.patient_name && (
+        <Text style={styles.patientName}>
+          {item.patient_name}
+        </Text>
+      )}
+
+      {/* Action taken */}
+      {item.action_taken && (
+        <Text style={styles.action}>
+          {item.action_taken}
+        </Text>
+      )}
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#fffdf6" />
-      <View style={styles.content}>
-        <Text style={styles.icon}></Text>
-        <Text style={styles.title}>Encounter Records</Text>
-        <Text style={styles.sub}>
-          Every patient visit you record will appear here.
-          Stored locally on your device.
+
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Records</Text>
+        <Text style={styles.headerSub}>
+          {encounters.length} encounter
+          {encounters.length !== 1 ? 's' : ''} recorded
         </Text>
-        <View style={styles.comingSoon}>
-          <Text style={styles.comingSoonText}>
-            No records yet — start a clinical session
+      </View>
+
+      {/* Search */}
+      <View style={styles.searchWrap}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search by code, name or complaint..."
+          placeholderTextColor="#cccccc"
+          value={search}
+          onChangeText={setSearch}
+        />
+      </View>
+
+      {/* List */}
+      {filtered.length === 0 ? (
+        <View style={styles.empty}>
+          <Text style={styles.emptyIcon}>📋</Text>
+          <Text style={styles.emptyTitle}>No records yet</Text>
+          <Text style={styles.emptySub}>
+            Complete a clinical session to see records here
           </Text>
         </View>
-      </View>
+      ) : (
+        <FlatList
+          data={filtered}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderEncounter}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </View>
   );
 }
@@ -32,41 +141,128 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fffdf6',
   },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 40,
-    gap: 12,
+  header: {
+    paddingHorizontal: 28,
+    paddingTop: 60,
+    paddingBottom: 16,
+    gap: 4,
   },
-  icon: {
-    fontSize: 48,
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 22,
+  headerTitle: {
+    fontSize: 28,
     fontWeight: '800',
     color: '#000000',
+    letterSpacing: -0.5,
     fontFamily: 'System',
-    textAlign: 'center',
   },
-  sub: {
-    fontSize: 14,
+  headerSub: {
+    fontSize: 13,
     color: '#888888',
     fontFamily: 'System',
-    textAlign: 'center',
-    lineHeight: 22,
   },
-  comingSoon: {
-    marginTop: 16,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 20,
-    paddingVertical: 8,
+  searchWrap: {
+    paddingHorizontal: 28,
+    marginBottom: 12,
+  },
+  searchInput: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1.5,
+    borderColor: '#e8e8e8',
+    borderRadius: 12,
     paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 14,
+    color: '#000000',
+    fontFamily: 'System',
   },
-  comingSoonText: {
+  list: {
+    paddingHorizontal: 28,
+    gap: 10,
+    paddingBottom: 32,
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#e8e8e8',
+    gap: 6,
+  },
+  cardTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  codeWrap: {
+    backgroundColor: '#000000',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  code: {
+    fontSize: 11,
+    color: '#ffffff',
+    fontWeight: '700',
+    fontFamily: 'System',
+    letterSpacing: 0.5,
+  },
+  referredBadge: {
+    backgroundColor: '#fff8f0',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderWidth: 1,
+    borderColor: '#ffcc80',
+  },
+  referredText: {
+    fontSize: 11,
+    color: '#e65100',
+    fontWeight: '600',
+    fontFamily: 'System',
+  },
+  date: {
+    fontSize: 11,
+    color: '#888888',
+    fontFamily: 'System',
+    marginLeft: 'auto',
+  },
+  complaint: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#000000',
+    fontFamily: 'System',
+  },
+  patientName: {
+    fontSize: 13,
+    color: '#888888',
+    fontFamily: 'System',
+  },
+  action: {
     fontSize: 12,
     color: '#888888',
     fontFamily: 'System',
+  },
+  empty: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingHorizontal: 40,
+  },
+  emptyIcon: {
+    fontSize: 44,
+    marginBottom: 8,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#000000',
+    fontFamily: 'System',
+  },
+  emptySub: {
+    fontSize: 13,
+    color: '#888888',
+    fontFamily: 'System',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });

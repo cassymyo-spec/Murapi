@@ -15,6 +15,7 @@ import { saveProfile } from '../../storage/profileStorage';
 
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from "../../navigation/NavigatorContainer";
+import { CommonActions } from '@react-navigation/native';
 
 type WorkNavProp = NativeStackNavigationProp<RootStackParamList, 'WorkDetails'>;
 
@@ -170,7 +171,12 @@ export default function WorkDetailsScreen({ navigation }: Props) {
               setupComplete: true,
               createdAt: new Date().toISOString(),
             });
-            navigation.navigate('MainTabs');
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'MainTabs' }],
+              })
+            );
           }}
           disabled={!isComplete}
           activeOpacity={0.85}
