@@ -23,7 +23,7 @@ const LANGUAGES = [
         code: 'en',
         name: 'English',
         localName: 'English',
-        description: "Default langauge"
+        description: 'Default language'
     },
     {
         code: 'sn',
@@ -85,12 +85,18 @@ export default function LanguageSelectScreen({ navigation}: Props ) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fffdf6" />
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backBtn}
+        >
+          <Text style={styles.backText}>Back</Text>
+        </TouchableOpacity>
         <Text style={styles.headerStep}>Step 1 of 3</Text>
         <Text style={styles.headerTitle}>Choose your language</Text>
         <Text style={styles.headerSub}>
-          Murapi will speak to you in this language
+          Murapi will use this language for guidance and prompts
         </Text>
       </View>
       <View style={styles.progressWrap}>
@@ -131,6 +137,14 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 20,
     gap: 6,
+  },
+  backBtn: {
+    marginBottom: 8,
+  },
+  backText: {
+    fontSize: 14,
+    color: '#888888',
+    fontFamily: 'System',
   },
   headerStep: {
     fontSize: 11,

@@ -37,21 +37,31 @@ export default function WorkDetailsScreen({ navigation }: Props) {
   const [supervisorName, setSupervisorName] = useState('');
   const [vhwId, setVhwId] = useState('');
   const [experience, setExperience] = useState('');
+  const [pin, setPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState('');
 
   const isComplete =
     healthCentre.length > 0 &&
     supervisorName.length > 0 &&
-    experience.length > 0;
+    experience.length > 0 &&
+    pin.length === 4 &&
+    confirmPin === pin;
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <StatusBar barStyle="dark-content" backgroundColor="#fffdf6" />
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
       {/* Header */}
       <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backBtn}
+        >
+          <Text style={styles.backText}>Back</Text>
+        </TouchableOpacity>
         <Text style={styles.headerStep}>Step 3 of 3</Text>
         <Text style={styles.headerTitle}>Work details</Text>
         <Text style={styles.headerSub}>
@@ -143,13 +153,51 @@ export default function WorkDetailsScreen({ navigation }: Props) {
           </View>
         </View>
 
+        <View style={styles.fieldWrap}>
+          <Text style={styles.fieldLabel}>Create PIN</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="4-digit PIN"
+            placeholderTextColor="#cccccc"
+            value={pin}
+            onChangeText={(value) =>
+              setPin(value.replace(/[^0-9]/g, '').slice(0, 4))
+            }
+            keyboardType="number-pad"
+            secureTextEntry
+            maxLength={4}
+          />
+          <Text style={styles.fieldHint}>
+            This PIN is required before opening Murapi after setup.
+          </Text>
+        </View>
+
+        <View style={styles.fieldWrap}>
+          <Text style={styles.fieldLabel}>Confirm PIN</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Re-enter 4-digit PIN"
+            placeholderTextColor="#cccccc"
+            value={confirmPin}
+            onChangeText={(value) =>
+              setConfirmPin(value.replace(/[^0-9]/g, '').slice(0, 4))
+            }
+            keyboardType="number-pad"
+            secureTextEntry
+            maxLength={4}
+          />
+          {confirmPin.length > 0 && confirmPin !== pin ? (
+            <Text style={styles.errorText}>PINs do not match.</Text>
+          ) : null}
+        </View>
+
         <View style={styles.readyNote}>
-          <Text style={styles.readyIcon}></Text>
           <View style={styles.readyText}>
             <Text style={styles.readyTitle}>Almost ready</Text>
             <Text style={styles.readyDesc}>
-              After this, Murapi is ready to support you
-              in the field. No internet needed.
+              Murapi is designed for offline support in the field.
+              Use it to document findings, structure assessments, and
+              decide when referral is needed.
             </Text>
           </View>
         </View>
@@ -168,6 +216,7 @@ export default function WorkDetailsScreen({ navigation }: Props) {
               supervisorName,
               vhwId,
               experience,
+              pin,
               setupComplete: true,
               createdAt: new Date().toISOString(),
             });
@@ -201,6 +250,14 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 20,
     gap: 6,
+  },
+  backBtn: {
+    marginBottom: 8,
+  },
+  backText: {
+    fontSize: 14,
+    color: '#888888',
+    fontFamily: 'System',
   },
   headerStep: {
     fontSize: 11,
@@ -300,19 +357,12 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   readyNote: {
-    flexDirection: 'row',
-    gap: 12,
     backgroundColor: '#f5f5f5',
     borderRadius: 12,
     padding: 16,
-    alignItems: 'flex-start',
     marginTop: 4,
   },
-  readyIcon: {
-    fontSize: 18,
-  },
   readyText: {
-    flex: 1,
     gap: 4,
   },
   readyTitle: {
@@ -349,5 +399,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 0.3,
     fontFamily: 'System',
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#b42318',
+    fontFamily: 'System',
+    marginTop: 2,
   },
 });

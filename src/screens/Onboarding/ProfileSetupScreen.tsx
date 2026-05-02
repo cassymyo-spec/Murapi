@@ -35,9 +35,15 @@ export default function ProfileSetupScreen({ navigation }: Props) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <StatusBar barStyle="dark-content" backgroundColor="#fffdf6" />
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
       <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backBtn}
+        >
+          <Text style={styles.backText}>Back</Text>
+        </TouchableOpacity>
         <Text style={styles.headerStep}>Step 2 of 3</Text>
         <Text style={styles.headerTitle}>Personal details</Text>
         <Text style={styles.headerSub}>
@@ -74,7 +80,7 @@ export default function ProfileSetupScreen({ navigation }: Props) {
           <Text style={styles.fieldLabel}>Phone number</Text>
           <View style={styles.phoneWrap}>
             <View style={styles.phonePrefix}>
-              <Text style={styles.phonePrefixText}>🇿🇼 +263</Text>
+              <Text style={styles.phonePrefixText}>+263</Text>
             </View>
             <TextInput
               style={[styles.input, styles.phoneInput]}
@@ -159,6 +165,14 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 20,
     gap: 6,
+  },
+  backBtn: {
+    marginBottom: 8,
+  },
+  backText: {
+    fontSize: 14,
+    color: '#888888',
+    fontFamily: 'System',
   },
   headerStep: {
     fontSize: 11,

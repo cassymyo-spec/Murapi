@@ -14,8 +14,10 @@ import { RootStackParamList } from '../navigation/NavigatorContainer';
 import { getTodayCount, getTotalPatients } from '../storage/patientRepository';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import { useAppTheme } from '../theme/ThemeProvider';
 
 export default function HomeScreen() {
+  const { theme } = useAppTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [profile, setProfile] = useState<Partial<VHWProfile> | null>(null);
   const [todayCount, setTodayCount] = useState(0);
@@ -40,17 +42,20 @@ export default function HomeScreen() {
   const firstName = profile?.name?.split(' ')[0] ?? 'VHW';
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <StatusBar
+        barStyle={theme.statusBarStyle}
+        backgroundColor={theme.colors.background}
+      />
 
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>Good morning,</Text>
-          <Text style={styles.name}>{firstName} 🌿</Text>
+          <Text style={[styles.greeting, { color: theme.colors.textMuted }]}>Good morning,</Text>
+          <Text style={[styles.name, { color: theme.colors.text }]}>{firstName}</Text>
         </View>
-        <View style={styles.offlineBadge}>
-          <View style={styles.offlineDot} />
-          <Text style={styles.offlineText}>Offline</Text>
+        <View style={[styles.offlineBadge, { backgroundColor: theme.colors.surfaceMuted }]}>
+          <View style={[styles.offlineDot, { backgroundColor: theme.colors.text }]} />
+          <Text style={[styles.offlineText, { color: theme.colors.text }]}>Offline</Text>
         </View>
       </View>
 
@@ -59,7 +64,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
 
-        <View style={styles.summaryCard}>
+        <View style={[styles.summaryCard, { backgroundColor: theme.colors.primary }]}>
           <Text style={styles.summaryLabel}>Today's patients</Text>
           <Text style={styles.summaryCount}>{todayCount}</Text>
           <Text style={styles.summaryDate}>
@@ -70,78 +75,95 @@ export default function HomeScreen() {
           </Text>
         </View>
 
-        <View style={styles.detailsCard}>
+        <View
+          style={[
+            styles.detailsCard,
+            {
+              backgroundColor: theme.colors.surface,
+              borderColor: theme.colors.border,
+            },
+          ]}
+        >
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Health centre</Text>
-            <Text style={styles.detailValue}>
+            <Text style={[styles.detailLabel, { color: theme.colors.textMuted }]}>Health centre</Text>
+            <Text style={[styles.detailValue, { color: theme.colors.text }]}>
               {profile?.healthCentre ?? '—'}
             </Text>
           </View>
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>District</Text>
-            <Text style={styles.detailValue}>
+            <Text style={[styles.detailLabel, { color: theme.colors.textMuted }]}>District</Text>
+            <Text style={[styles.detailValue, { color: theme.colors.text }]}>
               {profile?.district ?? '—'}
             </Text>
           </View>
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Supervisor</Text>
-            <Text style={styles.detailValue}>
+            <Text style={[styles.detailLabel, { color: theme.colors.textMuted }]}>Supervisor</Text>
+            <Text style={[styles.detailValue, { color: theme.colors.text }]}>
               {profile?.supervisorName ?? '—'}
             </Text>
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Quick actions</Text>
+        <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Quick actions</Text>
 
         <TouchableOpacity 
-          style={styles.actionCard} 
+          style={[
+            styles.actionCard,
+            { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+          ]} 
           onPress={() => navigation.navigate('ClinicalPatient')}
           activeOpacity={0.8}
         >
           <View style={styles.actionLeft}>
-            <Text style={styles.actionIcon}>🩺</Text>
             <View>
-              <Text style={styles.actionTitle}>
-                Start clinical session
+              <Text style={[styles.actionTitle, { color: theme.colors.text }]}>
+                Start session
               </Text>
-              <Text style={styles.actionDesc}>
-                Assess a patient with Murapi
+              <Text style={[styles.actionDesc, { color: theme.colors.textMuted }]}>
+                Type findings and get offline guidance
               </Text>
             </View>
           </View>
-          <Text style={styles.actionArrow}>→</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionCard} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={[
+            styles.actionCard,
+            { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+          ]}
+          activeOpacity={0.8}
+        >
           <View style={styles.actionLeft}>
-            <Text style={styles.actionIcon}></Text>
             <View>
-              <Text style={styles.actionTitle}>
-                Record encounter
+              <Text style={[styles.actionTitle, { color: theme.colors.text }]}>
+                Photo support
               </Text>
-              <Text style={styles.actionDesc}>
-                Log a patient visit
+              <Text style={[styles.actionDesc, { color: theme.colors.textMuted }]}>
+                Camera workflow for signs and wound review
               </Text>
             </View>
           </View>
-          <Text style={styles.actionArrow}>→</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionCard} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={[
+            styles.actionCard,
+            { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+          ]}
+          activeOpacity={0.8}
+        >
           <View style={styles.actionLeft}>
-            <Text style={styles.actionIcon}></Text>
             <View>
-              <Text style={styles.actionTitle}>
-                Refresher training
+              <Text style={[styles.actionTitle, { color: theme.colors.text }]}>
+                Voice support
               </Text>
-              <Text style={styles.actionDesc}>
-                Ask Murapi a clinical question
+              <Text style={[styles.actionDesc, { color: theme.colors.textMuted }]}>
+                Speak findings for hands-busy field use
               </Text>
             </View>
           </View>
-          <Text style={styles.actionArrow}>→</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -151,7 +173,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
@@ -279,10 +300,6 @@ const styles = StyleSheet.create({
   actionLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-  },
-  actionIcon: {
-    fontSize: 24,
   },
   actionTitle: {
     fontSize: 15,
@@ -295,10 +312,6 @@ const styles = StyleSheet.create({
     color: '#888888',
     fontFamily: 'System',
     marginTop: 2,
-  },
-  actionArrow: {
-    fontSize: 16,
-    color: '#cccccc',
   },
   summaryTotal: {
     fontSize: 11,

@@ -18,31 +18,31 @@ type Props = {
 export default function WelcomeScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fffdf6" />
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
       <View style={styles.topBar} />
       <View style={styles.content}>
         <View style={styles.logoWrap}>
-          <Text style={styles.logoEmoji}>🌿</Text>
           <Text style={styles.logoText}>Murapi</Text>
           <Text style={styles.tagline}>
-            Mufambiri weMurwere
+            Offline clinical support for village health workers
           </Text>
         </View>
         <View style={styles.descWrap}>
           <Text style={styles.descText}>
-            Clinical decision support for Zimbabwe's
-            Village Health Workers.
+            Built for Zimbabwe's village health workers to support
+            assessment, referral, and follow-up in the field.
           </Text>
           <Text style={styles.descSub}>
-            Works fully offline. Speaks your language.
+            Murapi supports decisions. It does not diagnose or replace
+            supervision at the clinic.
           </Text>
         </View>
       </View>
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate("ProfileSetup")}
+          onPress={() => navigation.navigate("LanguageSelect")}
           activeOpacity={0.85}
         >
           <Text style={styles.buttonText}>Get Started</Text>
@@ -59,7 +59,7 @@ export default function WelcomeScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fffdf6',
+    backgroundColor: '#ffffff',
   },
   topBar: {
     height: 4,
@@ -75,9 +75,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  logoEmoji: {
-    fontSize: 56,
-  },
   logoText: {
     fontSize: 42,
     fontWeight: '800',
@@ -88,9 +85,9 @@ const styles = StyleSheet.create({
   tagline: {
     fontSize: 13,
     color: '#6b8f79',
-    fontStyle: 'italic',
     letterSpacing: 0.5,
     fontFamily: 'System',
+    textTransform: 'uppercase',
   },
   descWrap: {
     alignItems: 'center',

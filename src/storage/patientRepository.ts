@@ -43,10 +43,51 @@ export type SessionMessage = {
   created_at: string;
 };
 
+export type SessionSaveInput = {
+  patientName: string;
+  village?: string;
+  ageGroup: string;
+  sex: string;
+  complaint: string;
+  sessionNotes?: string;
+  actionTaken?: string;
+  wasReferred: boolean;
+  messages: { role: 'murapi' | 'vhw'; message: string }[];
+};
+
+export type SessionSaveResult =
+  | {
+      ok: true;
+      patientCode: string;
+      encounterId: number;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
 export const generatePatientCode = (sex: string): string => {
   const number = Math.floor(1000 + Math.random() * 9000);
   const prefix = sex === 'female' ? 'MRS' : 'MR';
   return `${prefix}-${number}`;
+};
+
+export const generateUniquePatientCode = (sex: string): string => {
+  let attempts = 0;
+  let patientCode = generatePatientCode(sex);
+
+  while (attempts < 25) {
+    const existing = getPatientByCode(patientCode);
+
+    if (!existing) {
+      return patientCode;
+    }
+
+    patientCode = generatePatientCode(sex);
+    attempts += 1;
+  }
+
+  return `${sex === 'female' ? 'MRS' : 'MR'}-${Date.now().toString().slice(-6)}`;
 };
 
 // Create a new patient
@@ -196,6 +237,96 @@ export const saveSessionMessages = (
       [encounterId, msg.role, msg.message, now]
     );
   });
+};
+
+export const saveClinicalSession = (
+  input: SessionSaveInput
+): SessionSaveResult => {
+  const db = getDatabase();
+  if (!db || !isDatabaseReady()) {
+    return {
+      ok: false,
+      error: 'Database is not ready.',
+    };
+  }
+
+  const createdAt = new Date().toISOString();
+  const messageTimestamp = new Date().toISOString();
+  let patientCode = generateUniquePatientCode(input.sex);
+  let encounterId = 0;
+
+  try {
+    db.withTransactionSync(() => {
+      let patientCreated = false;
+      let attempts = 0;
+
+      while (!patientCreated && attempts < 5) {
+        try {
+          db.runSync(
+            `INSERT INTO patients
+             (patient_code, name, age_group, sex, village, created_at)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+              patientCode,
+              input.patientName,
+              input.ageGroup,
+              input.sex,
+              input.village ?? null,
+              createdAt,
+            ]
+          );
+          patientCreated = true;
+        } catch (error) {
+          attempts += 1;
+          patientCode = generateUniquePatientCode(input.sex);
+
+          if (attempts >= 5) {
+            throw error;
+          }
+        }
+      }
+
+      const encounterResult = db.runSync(
+        `INSERT INTO encounters
+         (patient_code, complaint, session_notes, action_taken,
+          was_referred, referral_reason, follow_up_date, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          patientCode,
+          input.complaint,
+          input.sessionNotes ?? null,
+          input.actionTaken ?? null,
+          input.wasReferred ? 1 : 0,
+          null,
+          null,
+          createdAt,
+        ]
+      );
+
+      encounterId = Number(encounterResult.lastInsertRowId);
+
+      if (!encounterId) {
+        throw new Error('Encounter insert did not return an id.');
+      }
+
+      input.messages.forEach((message) => {
+        db.runSync(
+          `INSERT INTO session_messages
+           (encounter_id, role, message, created_at)
+           VALUES (?, ?, ?, ?)`,
+          [encounterId, message.role, message.message, messageTimestamp]
+        );
+      });
+    });
+
+    return { ok: true, patientCode, encounterId };
+  } catch (error) {
+    console.error('Error saving clinical session:', error);
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'Unknown save error.',
+    };
+  }
 };
 
 // Get messages for an encounter

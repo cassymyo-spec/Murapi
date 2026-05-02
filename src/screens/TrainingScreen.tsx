@@ -9,17 +9,16 @@ import {
 export default function TrainingScreen() {
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fffdf6" />
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       <View style={styles.content}>
-        <Text style={styles.icon}></Text>
         <Text style={styles.title}>Refresher Training</Text>
         <Text style={styles.sub}>
-          Ask Murapi any clinical question. IMCI protocols,
-          danger signs, referral criteria — all available offline.
+          Review protocols, danger signs, and referral criteria in a
+          training mode designed for offline use.
         </Text>
         <View style={styles.comingSoon}>
           <Text style={styles.comingSoonText}>
-            Coming next — integration
+            Training content coming next
           </Text>
         </View>
       </View>
@@ -30,7 +29,7 @@ export default function TrainingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fffdf6',
+    backgroundColor: '#ffffff',
   },
   content: {
     flex: 1,
@@ -38,10 +37,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 40,
     gap: 12,
-  },
-  icon: {
-    fontSize: 48,
-    marginBottom: 8,
   },
   title: {
     fontSize: 22,

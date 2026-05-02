@@ -30,6 +30,22 @@ export const initDatabase = (): boolean => {
 
   try {
     database.execSync(`
+    CREATE TABLE IF NOT EXISTS vhw_profile (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      language TEXT,
+      name TEXT,
+      phone TEXT,
+      district TEXT,
+      province TEXT,
+      health_centre TEXT,
+      supervisor_name TEXT,
+      vhw_id TEXT,
+      experience TEXT,
+      pin_hash TEXT,
+      setup_complete INTEGER DEFAULT 0,
+      created_at TEXT
+    );
+
     CREATE TABLE IF NOT EXISTS patients (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       patient_code TEXT UNIQUE NOT NULL,

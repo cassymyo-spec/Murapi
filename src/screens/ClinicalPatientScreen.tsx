@@ -33,36 +33,41 @@ const SEX_OPTIONS = [
 ];
 
 const COMPLAINTS = [
-  { label: '🌡 Fever', value: 'fever' },
-  { label: '🤧 Cough', value: 'cough' },
-  { label: '💧 Diarrhoea', value: 'diarrhoea' },
-  { label: '🤰 Pregnancy', value: 'pregnancy' },
-  { label: '❤️ Chest pain', value: 'chest_pain' },
-  { label: '🧠 Headache', value: 'headache' },
-  { label: '🩸 Bleeding', value: 'bleeding' },
-  { label: '😮 Breathing', value: 'breathing' },
-  { label: '⚡ Fits/Seizure', value: 'seizure' },
-  { label: '🍽 Not eating', value: 'not_eating' },
-  { label: '😴 Unconscious', value: 'unconscious' },
-  { label: '✏️ Other', value: 'other' },
+  { label: 'Fever', value: 'fever' },
+  { label: 'Cough', value: 'cough' },
+  { label: 'Diarrhoea', value: 'diarrhoea' },
+  { label: 'Pregnancy', value: 'pregnancy' },
+  { label: 'Chest pain', value: 'chest_pain' },
+  { label: 'Headache', value: 'headache' },
+  { label: 'Bleeding', value: 'bleeding' },
+  { label: 'Breathing', value: 'breathing' },
+  { label: 'Fits/Seizure', value: 'seizure' },
+  { label: 'Not eating', value: 'not_eating' },
+  { label: 'Unconscious', value: 'unconscious' },
+  { label: 'Other', value: 'other' },
 ];
 
 export default function ClinicalPatientScreen({ navigation }: Props) {
+  const [patientName, setPatientName] = useState('');
+  const [village, setVillage] = useState('');
   const [ageGroup, setAgeGroup] = useState('');
   const [sex, setSex] = useState('');
   const [complaint, setComplaint] = useState('');
   const [otherComplaint, setOtherComplaint] = useState('');
 
   const isComplete =
+    patientName.trim().length > 0 &&
     ageGroup.length > 0 &&
     sex.length > 0 &&
     complaint.length > 0;
 
   const handleStart = () => {
     navigation.navigate('ClinicalSession', {
+      patientName: patientName.trim(),
+      village: village.trim(),
       ageGroup,
       sex,
-      complaint: complaint === 'other' ? otherComplaint : complaint,
+      complaint: complaint === 'other' ? otherComplaint.trim() : complaint,
     });
   };
 
@@ -71,7 +76,7 @@ export default function ClinicalPatientScreen({ navigation }: Props) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <StatusBar barStyle="dark-content" backgroundColor="#fffdf6" />
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
       {/* Header */}
       <View style={styles.header}>
@@ -79,11 +84,11 @@ export default function ClinicalPatientScreen({ navigation }: Props) {
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
         >
-          <Text style={styles.backText}>← Back</Text>
+          <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>New patient</Text>
         <Text style={styles.headerSub}>
-          Basic details before the session starts
+          Record patient details before the support session starts
         </Text>
       </View>
 
@@ -92,6 +97,32 @@ export default function ClinicalPatientScreen({ navigation }: Props) {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+
+        <View style={styles.fieldWrap}>
+          <Text style={styles.fieldLabel}>Patient name</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="e.g. Tariro Ndlovu"
+            placeholderTextColor="#cccccc"
+            value={patientName}
+            onChangeText={setPatientName}
+            autoCapitalize="words"
+            returnKeyType="next"
+          />
+        </View>
+
+        <View style={styles.fieldWrap}>
+          <Text style={styles.fieldLabel}>Village or area</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Optional"
+            placeholderTextColor="#cccccc"
+            value={village}
+            onChangeText={setVillage}
+            autoCapitalize="words"
+            returnKeyType="next"
+          />
+        </View>
 
         {/* Age group */}
         <View style={styles.fieldWrap}>
@@ -200,11 +231,9 @@ export default function ClinicalPatientScreen({ navigation }: Props) {
 
         {/* Warning note */}
         <View style={styles.warningNote}>
-          <Text style={styles.warningIcon}>⚠️</Text>
           <Text style={styles.warningText}>
-            Murapi supports your clinical judgment —
-            it does not replace it. Always use your
-            training and refer when in doubt.
+            Murapi supports assessment and referral decisions. It does not
+            diagnose, prescribe independently, or replace your training.
           </Text>
         </View>
 
@@ -222,7 +251,7 @@ export default function ClinicalPatientScreen({ navigation }: Props) {
           activeOpacity={0.85}
         >
           <Text style={styles.buttonText}>
-            Start Session →
+            Start session
           </Text>
         </TouchableOpacity>
       </View>
@@ -234,7 +263,7 @@ export default function ClinicalPatientScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fffdf6',
+    backgroundColor: '#ffffff',
   },
   header: {
     paddingHorizontal: 28,
@@ -354,21 +383,14 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   warningNote: {
-    flexDirection: 'row',
-    gap: 10,
     backgroundColor: '#fff8f0',
     borderRadius: 12,
     padding: 14,
-    alignItems: 'flex-start',
     borderWidth: 1,
     borderColor: '#ffe0b2',
     marginTop: 4,
   },
-  warningIcon: {
-    fontSize: 14,
-  },
   warningText: {
-    flex: 1,
     fontSize: 12,
     color: '#888888',
     fontFamily: 'System',

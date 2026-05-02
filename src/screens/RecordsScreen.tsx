@@ -92,7 +92,7 @@ export default function RecordsScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fffdf6" />
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
       {/* Header */}
       <View style={styles.header}>
@@ -117,7 +117,6 @@ export default function RecordsScreen() {
       {/* List */}
       {filtered.length === 0 ? (
         <View style={styles.empty}>
-          <Text style={styles.emptyIcon}>📋</Text>
           <Text style={styles.emptyTitle}>No records yet</Text>
           <Text style={styles.emptySub}>
             Complete a clinical session to see records here
@@ -139,7 +138,7 @@ export default function RecordsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fffdf6',
+    backgroundColor: '#ffffff',
   },
   header: {
     paddingHorizontal: 28,
@@ -247,10 +246,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
     paddingHorizontal: 40,
-  },
-  emptyIcon: {
-    fontSize: 44,
-    marginBottom: 8,
   },
   emptyTitle: {
     fontSize: 18,
