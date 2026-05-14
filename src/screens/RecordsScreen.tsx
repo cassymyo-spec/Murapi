@@ -8,13 +8,16 @@ import {
   StatusBar,
   TextInput,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   getAllEncounters,
   EncounterRow,
 } from '../storage/patientRepository';
+import { RootStackParamList } from '../navigation/NavigatorContainer';
 
 export default function RecordsScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [encounters, setEncounters] = useState<EncounterRow[]>([]);
   const [search, setSearch] = useState('');
 
@@ -53,6 +56,7 @@ export default function RecordsScreen() {
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.7}
+      onPress={() => navigation.navigate('RecordDetail', { encounterId: item.id })}
     >
       {/* Top row */}
       <View style={styles.cardTop}>

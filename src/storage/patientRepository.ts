@@ -44,6 +44,7 @@ export type SessionMessage = {
 };
 
 export type SessionSaveInput = {
+  patientCode?: string;
   patientName: string;
   village?: string;
   ageGroup: string;
@@ -218,6 +219,25 @@ export const getAllEncounters = (): EncounterRow[] => {
   );
 };
 
+export const getEncounterById = (
+  encounterId: number
+): EncounterRow | null => {
+  const db = getDatabase();
+  if (!db || !isDatabaseReady()) {
+    return null;
+  }
+
+  const result = db.getFirstSync<EncounterRow>(
+    `SELECT e.*, p.name as patient_name
+     FROM encounters e
+     LEFT JOIN patients p ON e.patient_code = p.patient_code
+     WHERE e.id = ?`,
+    [encounterId]
+  );
+
+  return result ?? null;
+};
+
 // Save all messages from a session
 export const saveSessionMessages = (
   encounterId: number,
@@ -252,36 +272,40 @@ export const saveClinicalSession = (
 
   const createdAt = new Date().toISOString();
   const messageTimestamp = new Date().toISOString();
-  let patientCode = generateUniquePatientCode(input.sex);
+  let patientCode = input.patientCode?.trim() || generateUniquePatientCode(input.sex);
   let encounterId = 0;
 
   try {
     db.withTransactionSync(() => {
-      let patientCreated = false;
-      let attempts = 0;
+      const existingPatient = getPatientByCode(patientCode);
 
-      while (!patientCreated && attempts < 5) {
-        try {
-          db.runSync(
-            `INSERT INTO patients
-             (patient_code, name, age_group, sex, village, created_at)
-             VALUES (?, ?, ?, ?, ?, ?)`,
-            [
-              patientCode,
-              input.patientName,
-              input.ageGroup,
-              input.sex,
-              input.village ?? null,
-              createdAt,
-            ]
-          );
-          patientCreated = true;
-        } catch (error) {
-          attempts += 1;
-          patientCode = generateUniquePatientCode(input.sex);
+      if (!existingPatient) {
+        let patientCreated = false;
+        let attempts = 0;
 
-          if (attempts >= 5) {
-            throw error;
+        while (!patientCreated && attempts < 5) {
+          try {
+            db.runSync(
+              `INSERT INTO patients
+               (patient_code, name, age_group, sex, village, created_at)
+               VALUES (?, ?, ?, ?, ?, ?)`,
+              [
+                patientCode,
+                input.patientName,
+                input.ageGroup,
+                input.sex,
+                input.village ?? null,
+                createdAt,
+              ]
+            );
+            patientCreated = true;
+          } catch (error) {
+            attempts += 1;
+            patientCode = generateUniquePatientCode(input.sex);
+
+            if (attempts >= 5) {
+              throw error;
+            }
           }
         }
       }

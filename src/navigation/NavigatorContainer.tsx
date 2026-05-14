@@ -23,6 +23,7 @@ import { useAppTheme } from '../theme/ThemeProvider';
 
 import ClinicalPatientScreen from '../screens/ClinicalPatientScreen';
 import ClinicalSessionScreen from '../screens/ClinicalSessionScreen';
+import RecordDetailScreen from '../screens/RecordDetailScreen';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -34,11 +35,15 @@ export type RootStackParamList = {
   MainTabs: undefined;
   ClinicalPatient: undefined;
   ClinicalSession: {
+    patientCode?: string;
     patientName: string;
     village?: string;
     ageGroup: string;
     sex: string;
     complaint: string;
+  };
+  RecordDetail: {
+    encounterId: number;
   };
 };
 
@@ -170,6 +175,7 @@ export default function AppNavigator() {
         <Stack.Screen name="MainTabs" component={MainTabs} />
         <Stack.Screen name="ClinicalPatient" component={ClinicalPatientScreen} />
         <Stack.Screen name="ClinicalSession" component={ClinicalSessionScreen} />
+        <Stack.Screen name="RecordDetail" component={RecordDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

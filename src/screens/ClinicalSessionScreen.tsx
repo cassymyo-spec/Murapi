@@ -239,7 +239,7 @@ const getFallbackAiResponse = async (request: AiRequest): Promise<AiResponse> =>
 };
 
 export default function ClinicalSessionScreen({ navigation, route }: Props) {
-  const { patientName, village, ageGroup, sex, complaint } = route.params;
+  const { patientCode, patientName, village, ageGroup, sex, complaint } = route.params;
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isThinking, setIsThinking] = useState(false);
@@ -270,6 +270,7 @@ export default function ClinicalSessionScreen({ navigation, route }: Props) {
 
     try {
       const result = saveClinicalSession({
+        patientCode,
         patientName,
         village: village || undefined,
         ageGroup,
